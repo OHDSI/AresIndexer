@@ -1,0 +1,26 @@
+Package: AresIndexer
+Type: Package
+Title: Observational Data Research Indexing Package
+Version: 0.1.0
+Date: 2021-02-12
+Authors@R: c(
+	person("Frank", "DeFalco", , "fdefalco@ohdsi.org", role = c("aut", "cre"))
+	)
+Maintainer: Frank J DeFalco <fdefalco@ohdsi.org>
+Description: The ARES Indexer creates a set of files used by the ARES framework to aid 
+    in the exploration of observational research. ARES Indexer leverages output 
+    from Achilles and DataQualityDashboad packages.
+License: Apache 2.0
+VignetteBuilder: knitr
+URL: https://github.com/OHDSI/AresIndexer
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Depends:
+  R (>= 3.5.0)
+Imports:
+  data.table,
+  lubridate
+Suggests: 
+    knitr,
+    rmarkdown

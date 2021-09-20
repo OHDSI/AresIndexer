@@ -1,2 +1,2 @@
 # AresIndexer
-R package that creates the index and relevant files for an Ares deployment.
+R Package that indexes observational data results to provide content to the ARES interface.
