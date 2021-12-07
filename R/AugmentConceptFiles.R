@@ -63,17 +63,19 @@ augmentConceptFiles <- function(releaseFolder) {
     temporalCharacterization <- read.csv(temporalCharacterizationFile,header = T)
     writeLines(paste0(nrow(temporalCharacterization), " temporal characterization insights found."))
     # augment achilles concept files with temporal characterization check results
-    for (row in 1:nrow(temporalCharacterization)) {
-      writeLines(paste0(row, "/", nrow(temporalCharacterization), " - inserting temporal characterization details"))
-      conceptFileName <- paste0("concept_",trimws(temporalCharacterization[row,"CONCEPT_ID"]),".json")
-      conceptFile <- file.path(releaseFolder,"concepts", trimws(tolower(temporalCharacterization[row,"CDM_TABLE_NAME"])), conceptFileName)
-      if (file.exists(conceptFile)) {
-        conceptContent <- readLines(conceptFile)
-        conceptData <- jsonlite::fromJSON(conceptContent)
-        conceptData$IS_STATIONARY <- temporalCharacterization[row,"IS_STATIONARY"]
-        conceptData$SEASONALITY_SCORE <- temporalCharacterization[row,"SEASONALITY_SCORE"]
-        conceptJson <- jsonlite::toJSON(conceptData)
-        write(conceptJson, conceptFile)
+    if (nrow(temporalCharacterization) > 0) {
+      for (row in 1:nrow(temporalCharacterization)) {
+        writeLines(paste0(row, "/", nrow(temporalCharacterization), " - inserting temporal characterization details"))
+        conceptFileName <- paste0("concept_",trimws(temporalCharacterization[row,"CONCEPT_ID"]),".json")
+        conceptFile <- file.path(releaseFolder,"concepts", trimws(tolower(temporalCharacterization[row,"CDM_TABLE_NAME"])), conceptFileName)
+        if (file.exists(conceptFile)) {
+          conceptContent <- readLines(conceptFile)
+          conceptData <- jsonlite::fromJSON(conceptContent)
+          conceptData$IS_STATIONARY <- temporalCharacterization[row,"IS_STATIONARY"]
+          conceptData$SEASONALITY_SCORE <- temporalCharacterization[row,"SEASONALITY_SCORE"]
+          conceptJson <- jsonlite::toJSON(conceptData)
+          write(conceptJson, conceptFile)
+        }
       }
     }
   } else {
