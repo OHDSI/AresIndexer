@@ -39,3 +39,5 @@ vignettes/*.pdf
 .Renviron
 inst/doc
 .Rproj.user
+errorReportSql.txt
+output/*
