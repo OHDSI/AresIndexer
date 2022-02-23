@@ -1,4 +1,4 @@
-# @file BuildDataQualityIndex.R
+# @file BuildNetworkUnmappedSourceCodeIndex
 #
 #
 # Copyright 2021 Observational Health Data Sciences and Informatics
@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Data Quality Stratified Network Index
+#' Network Unmapped Source Code Index
 #'
 #' @details
 #'
@@ -29,11 +29,15 @@
 #'
 #' @import jsonlite
 #' @import dplyr
+#' @import stringr
 #' @importFrom data.table fwrite
 #'
 #' @export
 buildNetworkUnmappedSourceCodeIndex <-
   function(sourceFolders, outputFolder) {
+
+    options(dplyr.summarise.inform = FALSE)
+
     # this should contain a line per source code, count of the number of data sources that list it as unmapped, and total
     # of unmapped records across all databases.  It should have a link back to the data source release key where it came from.
 
@@ -44,25 +48,38 @@ buildNetworkUnmappedSourceCodeIndex <-
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
       releaseFolders <- sort(releaseFolders, decreasing = T)
       if (length(releaseFolders) > 0) {
-
-      }
-      latestReleaseFolder <- releaseFolders[1]
-      completenessFile <-
-        file.path(latestReleaseFolder, "quality-completeness.csv")
-      cdmsourceFile <-
-        file.path(latestReleaseFolder, "cdmsource.csv")
-      if (file.exists(cdmSourceFile)) {
-        if (file.exists(completenessFile)) {
-          cdmSourceData <- read.csv(cdmsourceFile)
-
-          completenessData <- read.csv(completenessFile)
-          completenessData$NETWORK_SOURCE <- completenessFile
-          networkIndex <- rbind(networkIndex, completenessData)
+        latestReleaseFolder <- releaseFolders[1]
+        completenessFile <-
+          file.path(latestReleaseFolder, "quality-completeness.csv")
+        cdmSourceFile <-
+          file.path(latestReleaseFolder, "cdmsource.csv")
+        if (file.exists(cdmSourceFile)) {
+          if (file.exists(completenessFile)) {
+            cdmSourceData <- read.csv(cdmSourceFile)
+            completenessData <- read.csv(completenessFile)
+            withSourceValue <- filter(completenessData, nchar(stringr::str_trim(completenessData$SOURCE_VALUE))>0)
+            withSourceValue$DATA_SOURCE <- cdmSourceData$CDM_SOURCE_ABBREVIATION
+            networkIndex <- dplyr::bind_rows(networkIndex, withSourceValue)
+          }
         }
       }
     }
 
-    data.table::fwrite(latestResults,
+    networkResults <-
+      networkIndex %>%
+      group_by(CDM_TABLE_NAME, CDM_FIELD_NAME, SOURCE_VALUE) %>%
+      summarise(
+        RECORD_COUNT = sum(RECORD_COUNT),
+        DATA_SOURCE_COUNT = n_distinct(DATA_SOURCE),
+        DATA_SOURCES = paste(DATA_SOURCE, collapse=",")
+      ) %>%
+      as.data.frame()
+
+    topResults <- networkResults %>%
+      filter(DATA_SOURCE_COUNT > 1) %>%
+      slice_max(order_by=RECORD_COUNT,n=100000, with_ties=F)
+
+    data.table::fwrite(topResults,
                        file.path(outputFolder, "network-unmapped-source-codes.csv"))
-    invisible(latestResults)
+    invisible(topResults)
   }
