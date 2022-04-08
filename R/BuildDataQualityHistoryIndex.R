@@ -34,6 +34,7 @@ buildDataQualityHistoryIndex <-
     addResultsToIndex <- function(json) {
       cdm_source_name <- json$Metadata[1,"CDM_SOURCE_NAME"]
       cdm_source_abbreviation <- json$Metadata[1,"CDM_SOURCE_ABBREVIATION"]
+      vocabulary_version <- json$Metadata[1,"VOCABULARY_VERSION"]
       cdm_release_date <- format(lubridate::ymd(json$Metadata[1,"CDM_RELEASE_DATE"]),"%Y-%m-%d")
       count_passed <- as.numeric(json$Overview$countPassed)
       count_failed <- as.numeric(json$Overview$countOverallFailed)
@@ -58,7 +59,8 @@ buildDataQualityHistoryIndex <-
             count_failed =count_failed,
             count_total = count_total,
             cdm_release_date = cdm_release_date,
-            dqd_execution_date = dqd_execution_date
+            dqd_execution_date = dqd_execution_date,
+            vocabulary_version = vocabulary_version
           )
         )
     }
@@ -85,7 +87,8 @@ buildDataQualityHistoryIndex <-
         "count_failed",
         "count_total",
         "cdm_release_date",
-        "dqd_execution_date"
+        "dqd_execution_date",
+        "vocabulary_version"
       )
 
     index <- {

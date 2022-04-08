@@ -49,16 +49,18 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 		source$releases <- data.table()
 		releaseFolders <- list.dirs(sourceFolder, recursive = F)
+		releaseFolders <- sort(releaseFolders, decreasing = T)
 
 		# as part of building the network index - build the history index for this source
 		writeLines(paste("processing data source history index: ", sourceFolder))
 		dataSourceHistoryIndex <- AresIndexer::buildDataSourceHistoryIndex(sourceFolder)
 		write(jsonlite::toJSON(dataSourceHistoryIndex), file.path(sourceFolder,"data-source-history-index.json"))
 
+		releaseIntervalData <- data.frame()
+
 		# iterate on source releases
 		for (releaseFolder in releaseFolders) {
 		  writeLines(paste("processing release folder: ", releaseFolder))
-		  # todo - could make this function more resilient and pull necessary information from achilles export of dqd result is unavailable
 			dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
       personResultsFile <- file.path(releaseFolder, "person.json")
       observationPeriodResultsFile <- file.path(releaseFolder, "observationperiod.json")
@@ -102,16 +104,33 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
             count_data_quality_checks = dataQualityResults$Overview$countTotal,
             dqd_execution_date = format(lubridate::ymd_hms(dataQualityResults$endTimestamp),"%Y-%m-%d"),
             count_person = count_person,
-            obs_period_start = paste0(toupper(lubridate::month(lubridate::ym(obs_period_start), label=TRUE, abbr=TRUE)),"-",format(lubridate::ym(obs_period_start),"%Y")),
-            obs_period_end = paste0(toupper(lubridate::month(lubridate::ym(obs_period_end), label=TRUE, abbr=TRUE)),"-",format(lubridate::ym(obs_period_end),"%Y"))
+            obs_period_start = format(lubridate::ym(obs_period_start),"%Y-%m"),
+            obs_period_end = format(lubridate::ym(obs_period_end),"%Y-%m")
           )
         )
 			} else {
 				writeLines(paste("missing data quality result file ",dataQualityResultsFile))
 			}
+
+      cdmSourceFile <- file.path(releaseFolder, "cdmsource.csv")
+      if (file.exists(cdmSourceFile)) {
+        cdmSourceData <- read.csv(cdmSourceFile)
+        releaseIntervalData <- rbind(releaseIntervalData, cdmSourceData)
+      }
 		}
+
+		averageUpdateIntervalDays <- "n/a"
+		if (nrow(releaseIntervalData) > 1 ) {
+  		processedIndex <- releaseIntervalData %>%
+  		  mutate(DAYS_ELAPSED = as.Date(CDM_RELEASE_DATE) - lag(as.Date(CDM_RELEASE_DATE))) %>%
+  		  filter(!is.na(DAYS_ELAPSED))
+
+  		averageUpdateIntervalDays <- round(as.numeric(abs(mean(processedIndex$DAYS_ELAPSED)), units="days"))
+		}
+
 		source$releases <- source$releases[order(-dqd_execution_date)]
 		source$count_releases <- nrow(source$releases)
+		source$average_update_interval_days <- averageUpdateIntervalDays
 		index$sources[[sourceCount]] <- source
 	}
 
