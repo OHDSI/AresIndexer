@@ -1,7 +1,7 @@
-# @file BuildNetworkUnmappedSourceCodeIndex
+# @file BuildNetworkPerformanceIndex
 #
 #
-# Copyright 2021 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
 # This file is part of AresIndexer
 #
@@ -35,9 +35,9 @@ buildNetworkPerformanceIndex <-
   function(sourceFolder) {
     options(dplyr.summarise.inform = FALSE)
     networkIndex <- data.frame()
-
+    analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
+      rename(TASK = ANALYSIS_ID)
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
-
       if (length(releaseFolders) > 0) {
         # iterate through release folders
         for(releaseFolder in releaseFolders) {
@@ -47,9 +47,10 @@ buildNetworkPerformanceIndex <-
               read.csv(file.path(releaseFolder, "achilles-performance.csv"))
             dqdData <- as.data.frame(dqdData)
             performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
-              rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(CATEGORY = "achilles")
-            dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME")) %>%
-              rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME) %>% mutate(CATEGORY = "dqd") %>%
+              rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
+            performanceTable <-merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
+            dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
+              rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
               mutate_at("TIMING", str_replace, " secs", "")
             mergedTable <- rbind(performanceTable, dqdTable)
             mergedTable <- mergedTable  %>%
