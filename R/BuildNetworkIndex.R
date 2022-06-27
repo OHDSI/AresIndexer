@@ -59,9 +59,19 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 		writeLines(paste("processing network performance index", sourceFolder))
 		networkPerformanceIndex <- buildNetworkPerformanceIndex(sourceFolder)
-		write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
-		            append = TRUE, quote = FALSE,
-		            col.names = TRUE, row.names = FALSE)
+		if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
+		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
+		              append = TRUE, quote = FALSE,
+		              col.names = FALSE, row.names = FALSE)
+		}
+		else {
+		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
+		              append = TRUE, quote = FALSE,
+		              col.names = TRUE, row.names = FALSE)
+		}
+
+
+
 
 		releaseIntervalData <- data.frame()
 

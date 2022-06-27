@@ -48,14 +48,14 @@ buildNetworkPerformanceIndex <-
             dqdData <- as.data.frame(dqdData)
             performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
               rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
-            performanceTable <-merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
+            performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
             dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
               rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
               mutate_at("TIMING", str_replace, " secs", "")
             mergedTable <- rbind(performanceTable, dqdTable)
             mergedTable <- mergedTable  %>%
               mutate(SOURCE = basename(sourceFolder), RELEASE = basename(releaseFolder))
-            networkIndex <- dplyr::bind_rows(networkIndex, mergedTable)
+            networkIndex <- rbind(networkIndex, mergedTable)
         }
       }
 
