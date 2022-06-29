@@ -56,6 +56,23 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 		dataSourceHistoryIndex <- AresIndexer::buildDataSourceHistoryIndex(sourceFolder)
 		write(jsonlite::toJSON(dataSourceHistoryIndex), file.path(sourceFolder,"data-source-history-index.json"))
 
+
+		writeLines(paste("processing network performance index", sourceFolder))
+		networkPerformanceIndex <- buildNetworkPerformanceIndex(sourceFolder)
+		if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
+		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
+		              append = TRUE, quote = FALSE,
+		              col.names = FALSE, row.names = FALSE)
+		}
+		else {
+		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
+		              append = TRUE, quote = FALSE,
+		              col.names = TRUE, row.names = FALSE)
+		}
+
+
+
+
 		releaseIntervalData <- data.frame()
 
 		# iterate on source releases
