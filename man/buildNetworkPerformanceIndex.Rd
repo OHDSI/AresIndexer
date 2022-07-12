@@ -4,7 +4,7 @@
 \alias{buildNetworkPerformanceIndex}
 \title{Network Performance Index}
 \arguments{
-\item{sourceFolders}{A vector of data source folders}
+\item{sourceFolder}{Path to source folder}
 }
 \value{
 

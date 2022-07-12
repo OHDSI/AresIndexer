@@ -39,6 +39,10 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 	index$sources <- list()
 
 	sourceCount <- 0
+
+	writeLines("Generating export query index")
+	AresIndexer::buildExportQueryIndex(outputFolder)
+
 	# iterate on sources
 	for (sourceFolder in sourceFolders) {
 		writeLines(paste("processing source folder: ", sourceFolder))
