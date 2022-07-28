@@ -42,9 +42,13 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 	writeLines("Generating export query index")
 	AresIndexer::buildExportQueryIndex(outputFolder)
+	dir.create(file.path(outputFolder, "logs"))
+	networkPerformanceIndex <- data.frame()
 
 	# iterate on sources
 	for (sourceFolder in sourceFolders) {
+	  dir.create(file.path(paste(outputFolder, "logs", sep="/"), basename(sourceFolder)))
+	  sourceLogDirectory <- paste(outputFolder, "logs", basename(sourceFolder), sep="/")
 		writeLines(paste("processing source folder: ", sourceFolder))
 	  source <- {}
 
@@ -60,21 +64,11 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 		dataSourceHistoryIndex <- AresIndexer::buildDataSourceHistoryIndex(sourceFolder)
 		write(jsonlite::toJSON(dataSourceHistoryIndex), file.path(sourceFolder,"data-source-history-index.json"))
 
-
 		writeLines(paste("processing network performance index", sourceFolder))
-		networkPerformanceIndex <- buildNetworkPerformanceIndex(sourceFolder, outputFolder)
-		if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
-		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
-		              append = TRUE, quote = FALSE,
-		              col.names = FALSE, row.names = FALSE)
-		}
-		else {
-		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
-		              append = TRUE, quote = FALSE,
-		              col.names = TRUE, row.names = FALSE)
-		}
-
-
+		networkPerformanceIndex <- rbind(networkPerformanceIndex, buildNetworkPerformanceIndex(sourceFolder))
+		write.table(networkPerformanceIndex, file = file.path(sourceLogDirectory, "sourceLog.csv"), sep = ",",
+		            append = FALSE, quote = FALSE,
+		            col.names = TRUE, row.names = FALSE)
 
 
 		releaseIntervalData <- data.frame()
@@ -157,5 +151,9 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 	indexJson <- jsonlite::toJSON(index,auto_unbox = T)
 	write(indexJson, file.path(outputFolder,"index.json"))
+	if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
+	  file.remove(file.path(outputFolder, "network-performance.csv"))
+	}
+	data.table::fwrite(networkPerformanceIndex, file=paste0(outputFolder, "/network-performance.csv"))
   invisible(indexJson)
 }
