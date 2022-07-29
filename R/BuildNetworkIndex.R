@@ -42,6 +42,7 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 	writeLines("Generating export query index")
 	AresIndexer::buildExportQueryIndex(outputFolder)
+	networkPerformanceIndex <- data.frame()
 
 	# iterate on sources
 	for (sourceFolder in sourceFolders) {
@@ -60,21 +61,8 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 		dataSourceHistoryIndex <- AresIndexer::buildDataSourceHistoryIndex(sourceFolder)
 		write(jsonlite::toJSON(dataSourceHistoryIndex), file.path(sourceFolder,"data-source-history-index.json"))
 
-
 		writeLines(paste("processing network performance index", sourceFolder))
-		networkPerformanceIndex <- buildNetworkPerformanceIndex(sourceFolder)
-		if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
-		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
-		              append = TRUE, quote = FALSE,
-		              col.names = FALSE, row.names = FALSE)
-		}
-		else {
-		  write.table(networkPerformanceIndex, file = file.path(outputFolder, "network-performance.csv"), sep = ",",
-		              append = TRUE, quote = FALSE,
-		              col.names = TRUE, row.names = FALSE)
-		}
-
-
+		networkPerformanceIndex <- rbind(networkPerformanceIndex, buildNetworkPerformanceIndex(sourceFolder))
 
 
 		releaseIntervalData <- data.frame()
@@ -157,5 +145,9 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
 	indexJson <- jsonlite::toJSON(index,auto_unbox = T)
 	write(indexJson, file.path(outputFolder,"index.json"))
+	if(file.exists(file.path(outputFolder, "network-performance.csv"))) {
+	  file.remove(file.path(outputFolder, "network-performance.csv"))
+	}
+	data.table::fwrite(networkPerformanceIndex, file=paste0(outputFolder, "/network-performance.csv"))
   invisible(indexJson)
 }

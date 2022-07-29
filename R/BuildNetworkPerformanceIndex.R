@@ -33,6 +33,7 @@
 library(data.table)
 buildNetworkPerformanceIndex <-
   function(sourceFolder) {
+
     options(dplyr.summarise.inform = FALSE)
     networkIndex <- data.frame()
     analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
@@ -43,19 +44,29 @@ buildNetworkPerformanceIndex <-
         for(releaseFolder in releaseFolders) {
 
             dqdData <- jsonlite::fromJSON(file.path(releaseFolder, "dq-result.json"))
+
+            dqdData <- as.data.frame(dqdData)
             performanceData <-
               read.csv(file.path(releaseFolder, "achilles-performance.csv"))
+
             dqdData <- as.data.frame(dqdData)
+
             performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
               rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
+
             performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
+
             dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
               rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
               mutate_at("TIMING", str_replace, " secs", "")
+
             mergedTable <- rbind(performanceTable, dqdTable)
+
             mergedTable <- mergedTable  %>%
               mutate(SOURCE = basename(sourceFolder), RELEASE = basename(releaseFolder))
+
             networkIndex <- rbind(networkIndex, mergedTable)
+
         }
       }
 
