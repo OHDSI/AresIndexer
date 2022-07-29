@@ -17,9 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Data Quality Stratified Network Index
 #'
-#' @details
+#' @details Creates a data quality stratified network index
 #'
 #' @param sourceFolders A vector of folder locations that contain the dq-result.json files
 #' to be included in the network data quality index.

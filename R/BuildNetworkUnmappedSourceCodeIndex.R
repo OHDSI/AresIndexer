@@ -17,9 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Network Unmapped Source Code Index
 #'
-#' @details
+#' @details Builds an aggregate index of the unmapped source codes across all source folders.
 #'
 #' @param sourceFolders A vector of data source folders
 #'
@@ -57,9 +56,11 @@ buildNetworkUnmappedSourceCodeIndex <-
           if (file.exists(completenessFile)) {
             cdmSourceData <- read.csv(cdmSourceFile)
             completenessData <- read.csv(completenessFile)
-            withSourceValue <- filter(completenessData, nchar(stringr::str_trim(completenessData$SOURCE_VALUE))>0)
-            withSourceValue$DATA_SOURCE <- cdmSourceData$CDM_SOURCE_ABBREVIATION
-            networkIndex <- dplyr::bind_rows(networkIndex, withSourceValue)
+            withSourceValue <- dplyr::filter(completenessData, nchar(stringr::str_trim(completenessData$SOURCE_VALUE))>0)
+            if (nrow(withSourceValue >0)) {
+              withSourceValue$DATA_SOURCE <- cdmSourceData$CDM_SOURCE_ABBREVIATION
+              networkIndex <- dplyr::bind_rows(networkIndex, withSourceValue)
+            }
           }
         }
       }

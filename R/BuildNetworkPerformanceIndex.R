@@ -17,13 +17,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Network Performance Index
-#'
-#' @details
 #' @name buildNetworkPerformanceIndex
+#'
+#' @details Builds an index with network performance results across all source folders.
 #' @param sourceFolder Path to source folder
 #'
-#' @return
+#' @return Network performance results object.
 #'
 #' @import jsonlite
 #' @import dplyr

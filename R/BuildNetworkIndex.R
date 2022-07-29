@@ -17,10 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' General Network Index
 #'
-#' @details
-#'
+#' @details Generates a network index containing data source history across releases including performance, and data quality metrics.
 #'
 #' @param sourceFolders A vector of folder locations that contain the files
 #' exported from Achilles in the ARES Option format (Achilles::exportAO)
@@ -28,8 +26,8 @@
 #'
 #' @param outputFolder The location of the Ares data folder.
 #'
-#' @return
-#' The JSON object that is written to the ARES data folder (outputFolder parameter).
+#' @return The JSON object that is written to the ARES data folder (outputFolder parameter).
+#'
 #'
 #' @importFrom data.table data.table
 #'
