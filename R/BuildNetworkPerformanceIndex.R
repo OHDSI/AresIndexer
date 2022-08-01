@@ -42,30 +42,40 @@ buildNetworkPerformanceIndex <-
         # iterate through release folders
         for(releaseFolder in releaseFolders) {
 
-            dqdData <- jsonlite::fromJSON(file.path(releaseFolder, "dq-result.json"))
+            dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
+            dataQualityResultsFileExists <- file.exists(dataQualityResultsFile)
+            if (FALSE == dataQualityResultsFileExists) {
+              writeLines(paste("missing data quality result file: ",dataQualityResultsFile))
+            }
 
-            dqdData <- as.data.frame(dqdData)
-            performanceData <-
-              read.csv(file.path(releaseFolder, "achilles-performance.csv"))
+            achillesPerformanceFile <- file.path(releaseFolder, "achilles-performance.csv")
+            achillesPerformanceFileExists <- file.exists(achillesPerformanceFile)
+            if (FALSE == achillesPerformanceFileExists) {
+              writeLines(paste("missing achilles performance file: ",achillesPerformanceFile))
+            }
 
-            dqdData <- as.data.frame(dqdData)
+            if (dataQualityResultsFileExists & achillesPerformanceFileExists) {
+              dqdData <- jsonlite::fromJSON(dataQualityResultsFile)
+              dqdData <- as.data.frame(dqdData)
 
-            performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
-              rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
+              performanceData <- read.csv(achillesPerformanceFile)
 
-            performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
+              performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
+                rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
 
-            dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
-              rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
-              mutate_at("TIMING", str_replace, " secs", "")
+              performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
 
-            mergedTable <- rbind(performanceTable, dqdTable)
+              dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
+                rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
+                mutate_at("TIMING", str_replace, " secs", "")
 
-            mergedTable <- mergedTable  %>%
-              mutate(SOURCE = basename(sourceFolder), RELEASE = basename(releaseFolder))
+              mergedTable <- rbind(performanceTable, dqdTable)
 
-            networkIndex <- rbind(networkIndex, mergedTable)
+              mergedTable <- mergedTable  %>%
+                mutate(SOURCE = basename(sourceFolder), RELEASE = basename(releaseFolder))
 
+              networkIndex <- rbind(networkIndex, mergedTable)
+            }
         }
       }
 
