@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Build Network Index
 #'
 #' @details Generates a network index containing data source history across releases including performance, and data quality metrics.
 #'

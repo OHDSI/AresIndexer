@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Build Unmapped Source Code Network Index
 #'
 #' @details Builds an aggregate index of the unmapped source codes across all source folders.
 #'
@@ -30,6 +31,7 @@
 #' @import dplyr
 #' @import stringr
 #' @importFrom data.table fwrite
+#' @importFrom utils read.csv
 #'
 #' @export
 buildNetworkUnmappedSourceCodeIndex <-

@@ -17,9 +17,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Export Query Details
 #'
 #' @details Exports a query index that contains links to the queries used to generate all data summaries.
+#'
 #' @name buildExportQueryIndex
+#'
 #' @param outputFolder Path to source folder
 #'
 #' @import jsonlite

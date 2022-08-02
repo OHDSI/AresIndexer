@@ -17,6 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Build the Data Quality Index
 #'
 #' @details Creates a data quality stratified network index
 #'

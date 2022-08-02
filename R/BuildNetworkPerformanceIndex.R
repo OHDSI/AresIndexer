@@ -17,9 +17,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Build Network Performance Index
+#'
 #' @name buildNetworkPerformanceIndex
 #'
-#' @details Builds an index with network performance results across all source folders.
+#' @details Builds an index with network performance results for Achilles and DQD execution across all source folders.
 #' @param sourceFolder Path to source folder
 #'
 #' @return Network performance results object.

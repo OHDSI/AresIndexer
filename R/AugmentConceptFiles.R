@@ -17,8 +17,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' Augment Concept Files
 #'
-#' @details Adds Data Quality and Temporal details to concept data files
+#' @details
+#' Adds Data Quality and Temporal details to concept data files
 #'
 #' @param releaseFolder Folder containing a specific release of a data source
 #'
@@ -26,6 +28,7 @@
 #' @import dplyr
 #' @importFrom data.table fwrite
 #'
+
 #' @export
 augmentConceptFiles <- function(releaseFolder) {
   dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
