@@ -63,12 +63,12 @@ buildNetworkPerformanceIndex <-
               performanceData <- read.csv(achillesPerformanceFile)
 
               performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
-                rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "achilles")
+                rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "ACHILLES")
 
               performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
 
               dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
-                rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "dqd") %>%
+                rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "DQD") %>%
                 mutate_at("TIMING", str_replace, " secs", "")
 
               mergedTable <- rbind(performanceTable, dqdTable)
