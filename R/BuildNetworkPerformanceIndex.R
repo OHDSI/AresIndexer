@@ -40,17 +40,15 @@ buildNetworkPerformanceIndex <-
     analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
       rename(TASK = ANALYSIS_ID)
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
-      if (length(releaseFolders) > 0) {
-        # iterate through release folders
-        for(releaseFolder in releaseFolders) {
+      latestRelease <- max(releaseFolders)
 
-            dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
+            dataQualityResultsFile <- file.path(latestRelease, "dq-result.json")
             dataQualityResultsFileExists <- file.exists(dataQualityResultsFile)
             if (FALSE == dataQualityResultsFileExists) {
               writeLines(paste("missing data quality result file: ",dataQualityResultsFile))
             }
 
-            achillesPerformanceFile <- file.path(releaseFolder, "achilles-performance.csv")
+            achillesPerformanceFile <- file.path(latestRelease, "achilles-performance.csv")
             achillesPerformanceFileExists <- file.exists(achillesPerformanceFile)
             if (FALSE == achillesPerformanceFileExists) {
               writeLines(paste("missing achilles performance file: ",achillesPerformanceFile))
@@ -74,12 +72,11 @@ buildNetworkPerformanceIndex <-
               mergedTable <- rbind(performanceTable, dqdTable)
 
               mergedTable <- mergedTable  %>%
-                mutate(SOURCE = basename(sourceFolder), RELEASE = basename(releaseFolder))
+                mutate(SOURCE = basename(sourceFolder))
 
               networkIndex <- rbind(networkIndex, mergedTable)
             }
-        }
-      }
+
 
     return(networkIndex)
   }
