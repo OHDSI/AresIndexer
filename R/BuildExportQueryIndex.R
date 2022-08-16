@@ -184,6 +184,8 @@ buildExportQueryIndex <-
 
    quality_completeness <- "export/quality/sqlCompletenessTable.sql"
 
+   temporal_characterization <- "temporal/achilles_temporal_data.sql"
+
    sqlFilesIndex <- list(
      "PROCEDURE_OCCURRENCE" = procedure_occurrence,
      "PERSON" = person,
@@ -203,7 +205,8 @@ buildExportQueryIndex <-
      "MEASUREMENT" = measurement,
      "DOMAIN_SUMMARY" = domain_summary,
      "DATA_DENSITY" = data_density,
-     "QUALITY_COMPLETENESS" = quality_completeness
+     "QUALITY_COMPLETENESS" = quality_completeness,
+     "TEMPORAL_CHARACTERIZATION" = temporal_characterization
 
    )
    jsonOutput = jsonlite::toJSON(sqlFilesIndex)
