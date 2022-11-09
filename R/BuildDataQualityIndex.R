@@ -59,7 +59,13 @@ buildDataQualityIndex <- function(sourceFolders, outputFolder) {
         data.table::fwrite(domainAggregates, file.path(releaseFolder,"domain-issues.csv"))
 
         # collect all failures from this result file for network analysis
-        sourceFailures <- results[results[,"FAILED"]==1,c("CHECK_NAME", "CHECK_LEVEL", "CDM_TABLE_NAME", "CATEGORY", "SUBCATEGORY", "CONTEXT", "CDM_FIELD_NAME", "CONCEPT_ID", "UNIT_CONCEPT_ID")]
+        outColNames <- c("CHECK_NAME", "CHECK_LEVEL", "CDM_TABLE_NAME", "CATEGORY", "SUBCATEGORY", "CONTEXT", "CDM_FIELD_NAME", "CONCEPT_ID", "UNIT_CONCEPT_ID")
+        missingColNames <- setdiff(outColNames, names(results))
+        for (colName in missingColNames) {
+          writeLines(paste0("Expected column is missing in DQD results. Adding column with NA values: ", colName))
+          results[,colName] <- NA
+        }
+        sourceFailures <- results[results[,"FAILED"]==1,outColNames]
         sourceFailures$CDM_SOURCE_NAME <- dataQualityResults$Metadata$CDM_SOURCE_NAME
         sourceFailures$CDM_SOURCE_ABBREVIATION <- dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION
         sourceFailures$CDM_SOURCE_KEY <- gsub(" ","_",dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION)
