@@ -29,9 +29,9 @@
 #' @import jsonlite
 #' @import dplyr
 #' @import stringr
+#' @import data.table
 #'
 #' @export
-library(data.table)
 computeCharacterizationDifference <-
   function(sourceFolders) {
 
