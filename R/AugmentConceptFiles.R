@@ -36,7 +36,8 @@ augmentConceptFiles <- function(releaseFolder) {
   if (file.exists(dataQualityResultsFile)) {
     writeLines("updating concept files with data quality results")
     dataQualityResults <- jsonlite::fromJSON(dataQualityResultsFile)
-    results <- dataQualityResults$CheckResults
+    results <- dataQualityResults$CheckResults %>%
+      dplyr::rename_with(SqlRender::camelCaseToSnakeCase) %>% dplyr::rename_with(toupper)
 
     # augment achilles concept files with data quality failure count for relevant concept checks
     conceptAggregates <- results %>% filter(!is.na(results$CONCEPT_ID) && results$FAILED==1) %>% count(CONCEPT_ID,tolower(CDM_TABLE_NAME))

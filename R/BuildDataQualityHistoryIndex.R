@@ -32,16 +32,19 @@ buildDataQualityHistoryIndex <-
     stratified_index <- data.table::data.table()
 
     addResultsToIndex <- function(json) {
-      cdm_source_name <- json$Metadata[1,"CDM_SOURCE_NAME"]
-      cdm_source_abbreviation <- json$Metadata[1,"CDM_SOURCE_ABBREVIATION"]
-      vocabulary_version <- json$Metadata[1,"VOCABULARY_VERSION"]
-      cdm_release_date <- format(lubridate::ymd(json$Metadata[1,"CDM_RELEASE_DATE"]),"%Y-%m-%d")
+      thisMetadata <- json$Metadata %>%
+        dplyr::rename_with(SqlRender::camelCaseToSnakeCase) %>% dplyr::rename_with(toupper)
+      cdm_source_name <- thisMetadata[1,"CDM_SOURCE_NAME"]
+      cdm_source_abbreviation <- thisMetadata[1,"CDM_SOURCE_ABBREVIATION"]
+      vocabulary_version <- thisMetadata[1,"VOCABULARY_VERSION"]
+      cdm_release_date <- format(lubridate::ymd(thisMetadata[1,"CDM_RELEASE_DATE"]),"%Y-%m-%d")
       count_passed <- as.numeric(json$Overview$countPassed)
       count_failed <- as.numeric(json$Overview$countOverallFailed)
       count_total <- count_passed + count_failed
       dqd_execution_date <- format(lubridate::ymd_hms(json$endTimestamp),"%Y-%m-%d")
 
       stratifiedAggregates <- json$CheckResults %>%
+        dplyr::rename_with(SqlRender::camelCaseToSnakeCase) %>% dplyr::rename_with(toupper) %>%
         filter(FAILED==1) %>%
         group_by(CATEGORY, toupper(CDM_TABLE_NAME)) %>%
         summarise(count_value=n())

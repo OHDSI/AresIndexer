@@ -94,20 +94,23 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 				  writeLines(paste("missing observation period results file ", observationPeriodResultsFile))
 				}
 
-				source$cdm_source_name <- dataQualityResults$Metadata$CDM_SOURCE_NAME
-				source$cdm_source_abbreviation <- dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION
+				thisMetadata <- dataQualityResults$Metadata %>%
+				  dplyr::rename_with(SqlRender::camelCaseToSnakeCase) %>% dplyr::rename_with(toupper)
+
+				source$cdm_source_name <- thisMetadata$CDM_SOURCE_NAME
+				source$cdm_source_abbreviation <- thisMetadata$CDM_SOURCE_ABBREVIATION
 				source$cdm_source_key <- gsub(" ", "_", source$cdm_source_abbreviation)
-				source$cdm_holder <- dataQualityResults$Metadata$CDM_HOLDER
-				source$source_description <- dataQualityResults$Metadata$SOURCE_DESCRIPTION
+				source$cdm_holder <- thisMetadata$CDM_HOLDER
+				source$source_description <- thisMetadata$SOURCE_DESCRIPTION
 
         source$releases <- rbind(
           source$releases,
           list(
-            release_name = format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y-%m-%d"),
-            release_id = format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y%m%d"),
-            cdm_version = dataQualityResults$Metadata$CDM_VERSION,
-            vocabulary_version = dataQualityResults$Metadata$VOCABULARY_VERSION,
-            dqd_version = dataQualityResults$Metadata$DQD_VERSION,
+            release_name = format(lubridate::ymd(thisMetadata$CDM_RELEASE_DATE),"%Y-%m-%d"),
+            release_id = format(lubridate::ymd(thisMetadata$CDM_RELEASE_DATE),"%Y%m%d"),
+            cdm_version = thisMetadata$CDM_VERSION,
+            vocabulary_version = thisMetadata$VOCABULARY_VERSION,
+            dqd_version = thisMetadata$DQD_VERSION,
             count_data_quality_issues = dataQualityResults$Overview$countOverallFailed,
             count_data_quality_checks = dataQualityResults$Overview$countTotal,
             dqd_execution_date = format(lubridate::ymd_hms(dataQualityResults$endTimestamp),"%Y-%m-%d"),
