@@ -54,23 +54,23 @@ buildDataQualityIndex <- function(sourceFolders, outputFolder) {
         results <- dataQualityResults$CheckResults
 
         # for each release, generate a summary of failures by cdm_table_name
-        domainAggregates <- results %>% filter(FAILED==1) %>% count(tolower(CDM_TABLE_NAME))
+        domainAggregates <- results %>% filter(failed==1) %>% count(tolower(cdmTableName))
         names(domainAggregates) <- c("cdm_table_name", "count_failed")
         data.table::fwrite(domainAggregates, file.path(releaseFolder,"domain-issues.csv"))
 
         # collect all failures from this result file for network analysis
-        outColNames <- c("CHECK_NAME", "CHECK_LEVEL", "CDM_TABLE_NAME", "CATEGORY", "SUBCATEGORY", "CONTEXT", "CDM_FIELD_NAME", "CONCEPT_ID", "UNIT_CONCEPT_ID")
+        outColNames <- c("checkName", "checkLevel", "cdmTableName", "category", "subcategory", "context", "cdmFieldName", "conceptId", "unitConceptId")
         missingColNames <- setdiff(outColNames, names(results))
         for (colName in missingColNames) {
           writeLines(paste0("Expected column is missing in DQD results. Adding column with NA values: ", colName))
           results[,colName] <- NA
         }
-        sourceFailures <- results[results[,"FAILED"]==1,outColNames]
-        sourceFailures$CDM_SOURCE_NAME <- dataQualityResults$Metadata$CDM_SOURCE_NAME
-        sourceFailures$CDM_SOURCE_ABBREVIATION <- dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION
-        sourceFailures$CDM_SOURCE_KEY <- gsub(" ","_",dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION)
-        sourceFailures$RELEASE_NAME <- format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y-%m-%d")
-        sourceFailures$RELEASE_ID <- format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y%m%d")
+        sourceFailures <- results[results[,"failed"]==1,outColNames]
+        sourceFailures$CDM_SOURCE_NAME <- dataQualityResults$Metadata$cdmSourceName
+        sourceFailures$CDM_SOURCE_ABBREVIATION <- dataQualityResults$Metadata$cdmSourceAbbreviation
+        sourceFailures$CDM_SOURCE_KEY <- gsub(" ","_",dataQualityResults$Metadata$cdmSourceAbbreviation)
+        sourceFailures$RELEASE_NAME <- format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y-%m-%d")
+        sourceFailures$RELEASE_ID <- format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y%m%d")
         networkIndex <- rbind(networkIndex, sourceFailures)
       } else {
         writeLines(paste("missing data quality result file ",dataQualityResultsFile))

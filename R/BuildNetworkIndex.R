@@ -94,20 +94,20 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 				  writeLines(paste("missing observation period results file ", observationPeriodResultsFile))
 				}
 
-				source$cdm_source_name <- dataQualityResults$Metadata$CDM_SOURCE_NAME
-				source$cdm_source_abbreviation <- dataQualityResults$Metadata$CDM_SOURCE_ABBREVIATION
+				source$cdm_source_name <- dataQualityResults$Metadata$cdmSourceName
+				source$cdm_source_abbreviation <- dataQualityResults$Metadata$cdmSourceAbbreviation
 				source$cdm_source_key <- gsub(" ", "_", source$cdm_source_abbreviation)
-				source$cdm_holder <- dataQualityResults$Metadata$CDM_HOLDER
-				source$source_description <- dataQualityResults$Metadata$SOURCE_DESCRIPTION
+				source$cdm_holder <- dataQualityResults$Metadata$cdmHolder
+				source$source_description <- dataQualityResults$Metadata$sourceDescription
 
         source$releases <- rbind(
           source$releases,
           list(
-            release_name = format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y-%m-%d"),
-            release_id = format(lubridate::ymd(dataQualityResults$Metadata$CDM_RELEASE_DATE),"%Y%m%d"),
-            cdm_version = dataQualityResults$Metadata$CDM_VERSION,
-            vocabulary_version = dataQualityResults$Metadata$VOCABULARY_VERSION,
-            dqd_version = dataQualityResults$Metadata$DQD_VERSION,
+            release_name = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y-%m-%d"),
+            release_id = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y%m%d"),
+            cdm_version = dataQualityResults$Metadata$cdmVersion,
+            vocabulary_version = dataQualityResults$Metadata$vocabularyVersion,
+            dqd_version = dataQualityResults$Metadata$dqdVersion,
             count_data_quality_issues = dataQualityResults$Overview$countOverallFailed,
             count_data_quality_checks = dataQualityResults$Overview$countTotal,
             dqd_execution_date = format(lubridate::ymd_hms(dataQualityResults$endTimestamp),"%Y-%m-%d"),

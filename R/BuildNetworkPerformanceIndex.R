@@ -21,7 +21,8 @@
 #'
 #' @name buildNetworkPerformanceIndex
 #'
-#' @details Builds an index with network performance results for Achilles and DQD execution across all source folders.
+#' @details Builds an index with network performance results for Achilles
+#' and DQD execution across all source folders.
 #' @param sourceFolder Path to source folder
 #'
 #' @return Network performance results object.
@@ -37,8 +38,8 @@ buildNetworkPerformanceIndex <-
 
     options(dplyr.summarise.inform = FALSE)
     networkIndex <- data.frame()
-    analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
-      rename(TASK = ANALYSIS_ID)
+    analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("analysis_id", "category")) %>%
+      rename(TASK = analysis_id)
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
       latestRelease <- max(releaseFolders)
 
@@ -65,9 +66,12 @@ buildNetworkPerformanceIndex <-
 
               performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
 
-              dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
-                rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "DQD") %>%
+              dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.executionTime", "CheckResults.category")) %>%
+                rename(TASK = CheckResults.checkId, TIMING = CheckResults.executionTime, CATEGORY = CheckResults.category) %>% mutate(PACKAGE = "DQD") %>%
                 mutate_at("TIMING", str_replace, " secs", "")
+
+              names(performanceTable) <- toupper(names(performanceTable))
+              names(dqdTable) <- toupper(names(dqdTable))
 
               mergedTable <- rbind(performanceTable, dqdTable)
 

@@ -39,7 +39,7 @@ augmentConceptFiles <- function(releaseFolder) {
     results <- dataQualityResults$CheckResults
 
     # augment achilles concept files with data quality failure count for relevant concept checks
-    conceptAggregates <- results %>% filter(!is.na(results$CONCEPT_ID) && results$FAILED==1) %>% count(CONCEPT_ID,tolower(CDM_TABLE_NAME))
+    conceptAggregates <- results %>% filter(!is.na(results$conceptId) & results$failed==1) %>% count(conceptId,tolower(cdmTableName))
     names(conceptAggregates) <- c("concept_id","cdm_table_name", "count_failed")
     writeLines(paste0(nrow(conceptAggregates), " concept level data quality issues found."))
     if (nrow(conceptAggregates) > 0) {

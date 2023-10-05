@@ -32,18 +32,18 @@ buildDataQualityHistoryIndex <-
     stratified_index <- data.table::data.table()
 
     addResultsToIndex <- function(json) {
-      cdm_source_name <- json$Metadata[1,"CDM_SOURCE_NAME"]
-      cdm_source_abbreviation <- json$Metadata[1,"CDM_SOURCE_ABBREVIATION"]
-      vocabulary_version <- json$Metadata[1,"VOCABULARY_VERSION"]
-      cdm_release_date <- format(lubridate::ymd(json$Metadata[1,"CDM_RELEASE_DATE"]),"%Y-%m-%d")
+      cdm_source_name <- json$Metadata[1,"cdmSourceName"]
+      cdm_source_abbreviation <- json$Metadata[1,"cdmSourceAbbreviation"]
+      vocabulary_version <- json$Metadata[1,"vocabularyVersion"]
+      cdm_release_date <- format(lubridate::ymd(json$Metadata[1,"cdmReleaseDate"]),"%Y-%m-%d")
       count_passed <- as.numeric(json$Overview$countPassed)
       count_failed <- as.numeric(json$Overview$countOverallFailed)
       count_total <- count_passed + count_failed
       dqd_execution_date <- format(lubridate::ymd_hms(json$endTimestamp),"%Y-%m-%d")
 
       stratifiedAggregates <- json$CheckResults %>%
-        filter(FAILED==1) %>%
-        group_by(CATEGORY, toupper(CDM_TABLE_NAME)) %>%
+        filter(failed==1) %>%
+        group_by(category, toupper(cdmTableName)) %>%
         summarise(count_value=n())
       names(stratifiedAggregates) <- c("category", "cdm_table_name", "count_value")
       stratifiedAggregates$dqd_execution_date <- dqd_execution_date
