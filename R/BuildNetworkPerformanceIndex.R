@@ -38,7 +38,7 @@ buildNetworkPerformanceIndex <-
 
     options(dplyr.summarise.inform = FALSE)
     networkIndex <- data.frame()
-    analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("analysis_id", "category")) %>%
+    analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
       rename(TASK = analysis_id)
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
       latestRelease <- max(releaseFolders)
