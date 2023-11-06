@@ -39,7 +39,7 @@ buildNetworkPerformanceIndex <-
     options(dplyr.summarise.inform = FALSE)
     networkIndex <- data.frame()
     analysisDetails <- dplyr::select(Achilles::getAnalysisDetails(), c("ANALYSIS_ID", "CATEGORY")) %>%
-      rename(TASK = analysis_id)
+      rename(TASK = ANALYSIS_ID)
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
       latestRelease <- max(releaseFolders)
 
@@ -66,8 +66,8 @@ buildNetworkPerformanceIndex <-
 
               performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
 
-              dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.executionTime", "CheckResults.category")) %>%
-                rename(TASK = CheckResults.checkId, TIMING = CheckResults.executionTime, CATEGORY = CheckResults.category) %>% mutate(PACKAGE = "DQD") %>%
+              dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.EXECUTION_TIME", "CheckResults.CATEGORY")) %>%
+                rename(TASK = CheckResults.checkId, TIMING = CheckResults.EXECUTION_TIME, CATEGORY = CheckResults.CATEGORY) %>% mutate(PACKAGE = "DQD") %>%
                 mutate_at("TIMING", str_replace, " secs", "")
 
               names(performanceTable) <- toupper(names(performanceTable))
