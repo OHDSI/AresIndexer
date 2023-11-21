@@ -69,12 +69,18 @@ buildDataQualityHistoryIndex <-
 
     for (directory in directories) {
       resultFile <- file.path(directory, "dq-result.json")
-      if (file.exists(resultFile)) {
-        writeLines(paste("processing", resultFile))
-        fileContents <- readLines(resultFile, warn = FALSE)
-        resultJson <- jsonlite::fromJSON(fileContents)
-        addResultsToIndex(resultJson)
-      } else {
+      if (file.exists(resultFile) && directory %in% AresIndexer::getIgnoredReleases(sourceFolder)) {
+          writeLines(paste("AresIndexIgnore file present, skipping release dq file: ", resultFile))
+        }
+        else if (file.exists(resultFile)) {
+
+          writeLines(paste("processing", resultFile))
+          fileContents <- readLines(resultFile, warn = FALSE)
+          resultJson <- jsonlite::fromJSON(fileContents)
+          addResultsToIndex(resultJson)
+
+        }
+        else {
         writeLines(paste("missing", resultFile))
       }
     }

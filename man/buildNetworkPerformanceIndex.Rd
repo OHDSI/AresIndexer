@@ -13,5 +13,6 @@ Network performance results object.
 Build Network Performance Index
 }
 \details{
-Builds an index with network performance results for Achilles and DQD execution across all source folders.
+Builds an index with network performance results for Achilles
+and DQD execution across all source folders.
 }
