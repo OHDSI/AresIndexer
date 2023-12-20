@@ -45,23 +45,36 @@ buildNetworkUnmappedSourceCodeIndex <-
     # iterate on sources
     networkIndex <- data.frame()
     for (sourceFolder in sourceFolders) {
-      # find the latest release in the source folder
-      releaseFolders <- list.dirs(sourceFolder, recursive = F)
-      releaseFolders <- sort(releaseFolders, decreasing = T)
-      if (length(releaseFolders) > 0) {
-        latestReleaseFolder <- releaseFolders[1]
-        completenessFile <-
-          file.path(latestReleaseFolder, "quality-completeness.csv")
-        cdmSourceFile <-
-          file.path(latestReleaseFolder, "cdmsource.csv")
-        if (file.exists(cdmSourceFile)) {
-          if (file.exists(completenessFile)) {
-            cdmSourceData <- read.csv(cdmSourceFile)
-            completenessData <- read.csv(completenessFile)
-            withSourceValue <- dplyr::filter(completenessData, nchar(stringr::str_trim(completenessData$SOURCE_VALUE))>0)
-            if (nrow(withSourceValue >0)) {
-              withSourceValue$DATA_SOURCE <- cdmSourceData$CDM_SOURCE_ABBREVIATION
-              networkIndex <- dplyr::bind_rows(networkIndex, withSourceValue)
+      
+      # skip index for source if ignore file present
+      
+      if (file.exists(file.path(sourceFolder,".aresIndexIgnore"))){
+        
+        writeLines(paste("AresIndexIngore file present, skipping source folder: ", sourceFolder))
+      }else
+      {
+        # skip for releases where ignore file present
+        releaseFolders<- releaseFolders[!releaseFolders %in% AresIndexer::getIgnoredReleases(sourceFolder)]
+        
+        # find the latest release in the source folder
+        releaseFolders <- list.dirs(sourceFolder, recursive = F)
+        releaseFolders <- sort(releaseFolders, decreasing = T)
+        
+        if (length(releaseFolders) > 0) {
+          latestReleaseFolder <- releaseFolders[1]
+          completenessFile <-
+            file.path(latestReleaseFolder, "quality-completeness.csv")
+          cdmSourceFile <-
+            file.path(latestReleaseFolder, "cdmsource.csv")
+          if (file.exists(cdmSourceFile)) {
+            if (file.exists(completenessFile)) {
+              cdmSourceData <- read.csv(cdmSourceFile)
+              completenessData <- read.csv(completenessFile)
+              withSourceValue <- dplyr::filter(completenessData, nchar(stringr::str_trim(completenessData$SOURCE_VALUE))>0)
+              if (nrow(withSourceValue >0)) {
+                withSourceValue$DATA_SOURCE <- cdmSourceData$CDM_SOURCE_ABBREVIATION
+                networkIndex <- dplyr::bind_rows(networkIndex, withSourceValue)
+              }
             }
           }
         }

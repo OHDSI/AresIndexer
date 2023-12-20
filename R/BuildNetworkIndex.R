@@ -46,6 +46,14 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 	# iterate on sources
 	for (sourceFolder in sourceFolders) {
 		writeLines(paste("processing source folder: ", sourceFolder))
+
+	  # skip index for source if ignore file present
+	  if (file.exists(file.path(sourceFolder,".aresIndexIgnore"))){
+
+	    writeLines(paste("AresIndexIgnore file present, skipping source folder: ", sourceFolder))
+	  }else
+	  {
+
 	  source <- {}
 
 		sourceCount <- sourceCount + 1
@@ -69,78 +77,86 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 		# iterate on source releases
 		for (releaseFolder in releaseFolders) {
 		  writeLines(paste("processing release folder: ", releaseFolder))
-			dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
-      personResultsFile <- file.path(releaseFolder, "person.json")
-      observationPeriodResultsFile <- file.path(releaseFolder, "observationperiod.json")
 
-			# add data quality details
-			if (file.exists(dataQualityResultsFile)) {
-				dataQualityResults <- jsonlite::fromJSON(dataQualityResultsFile)
+		  # skip index for release if ignore file present
+		  if (releaseFolder %in% AresIndexer::getIgnoredReleases(sourceFolder)){
 
-				# add person results
-				if (file.exists(personResultsFile)) {
-				  personResults <- jsonlite::fromJSON(personResultsFile)
-				  count_person <- sum(personResults$BIRTH_YEAR_DATA$COUNT_PERSON)
-				} else {
-				  writeLines(paste("missing person results file ", personResultsFile))
-				}
+		    writeLines(paste("AresIndexIgnore file present, skipping release folder: ", releaseFolder))
 
-				# add observation period results
-				if (file.exists(observationPeriodResultsFile)) {
-				  observationPeriodResults <- jsonlite::fromJSON(observationPeriodResultsFile)
-				  obs_period_start <- min(observationPeriodResults$OBSERVED_BY_MONTH$MONTH_YEAR)
-				  obs_period_end <- max(observationPeriodResults$OBSERVED_BY_MONTH$MONTH_YEAR)
-				} else {
-				  writeLines(paste("missing observation period results file ", observationPeriodResultsFile))
-				}
+		  }else {
 
-				source$cdm_source_name <- dataQualityResults$Metadata$cdmSourceName
-				source$cdm_source_abbreviation <- dataQualityResults$Metadata$cdmSourceAbbreviation
-				source$cdm_source_key <- gsub(" ", "_", source$cdm_source_abbreviation)
-				source$cdm_holder <- dataQualityResults$Metadata$cdmHolder
-				source$source_description <- dataQualityResults$Metadata$sourceDescription
+  			dataQualityResultsFile <- file.path(releaseFolder, "dq-result.json")
+        personResultsFile <- file.path(releaseFolder, "person.json")
+        observationPeriodResultsFile <- file.path(releaseFolder, "observationperiod.json")
 
-        source$releases <- rbind(
-          source$releases,
-          list(
-            release_name = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y-%m-%d"),
-            release_id = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y%m%d"),
-            cdm_version = dataQualityResults$Metadata$cdmVersion,
-            vocabulary_version = dataQualityResults$Metadata$vocabularyVersion,
-            dqd_version = dataQualityResults$Metadata$dqdVersion,
-            count_data_quality_issues = dataQualityResults$Overview$countOverallFailed,
-            count_data_quality_checks = dataQualityResults$Overview$countTotal,
-            dqd_execution_date = format(lubridate::ymd_hms(dataQualityResults$endTimestamp),"%Y-%m-%d"),
-            count_person = count_person,
-            obs_period_start = format(lubridate::ym(obs_period_start),"%Y-%m"),
-            obs_period_end = format(lubridate::ym(obs_period_end),"%Y-%m")
+  			# add data quality details
+  			if (file.exists(dataQualityResultsFile)) {
+  				dataQualityResults <- jsonlite::fromJSON(dataQualityResultsFile)
+
+  				# add person results
+  				if (file.exists(personResultsFile)) {
+  				  personResults <- jsonlite::fromJSON(personResultsFile)
+  				  count_person <- sum(personResults$BIRTH_YEAR_DATA$COUNT_PERSON)
+  				} else {
+  				  writeLines(paste("missing person results file ", personResultsFile))
+  				}
+
+  				# add observation period results
+  				if (file.exists(observationPeriodResultsFile)) {
+  				  observationPeriodResults <- jsonlite::fromJSON(observationPeriodResultsFile)
+  				  obs_period_start <- min(observationPeriodResults$OBSERVED_BY_MONTH$MONTH_YEAR)
+  				  obs_period_end <- max(observationPeriodResults$OBSERVED_BY_MONTH$MONTH_YEAR)
+  				} else {
+  				  writeLines(paste("missing observation period results file ", observationPeriodResultsFile))
+  				}
+
+  				source$cdm_source_name <- dataQualityResults$Metadata$cdmSourceName
+  				source$cdm_source_abbreviation <- dataQualityResults$Metadata$cdmSourceAbbreviation
+  				source$cdm_source_key <- gsub(" ", "_", source$cdm_source_abbreviation)
+  				source$cdm_holder <- dataQualityResults$Metadata$cdmHolder
+  				source$source_description <- dataQualityResults$Metadata$sourceDescription
+
+          source$releases <- rbind(
+            source$releases,
+            list(
+              release_name = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y-%m-%d"),
+              release_id = format(lubridate::ymd(dataQualityResults$Metadata$cdmReleaseDate),"%Y%m%d"),
+              cdm_version = dataQualityResults$Metadata$cdmVersion,
+              vocabulary_version = dataQualityResults$Metadata$vocabularyVersion,
+              dqd_version = dataQualityResults$Metadata$dqdVersion,
+              count_data_quality_issues = dataQualityResults$Overview$countOverallFailed,
+              count_data_quality_checks = dataQualityResults$Overview$countTotal,
+              dqd_execution_date = format(lubridate::ymd_hms(dataQualityResults$endTimestamp),"%Y-%m-%d"),
+              count_person = count_person,
+              obs_period_start = format(lubridate::ym(obs_period_start),"%Y-%m"),
+              obs_period_end = format(lubridate::ym(obs_period_end),"%Y-%m")
+            )
           )
-        )
-			} else {
-				writeLines(paste("missing data quality result file ",dataQualityResultsFile))
-			}
+  			} else {
+  				writeLines(paste("missing data quality result file ",dataQualityResultsFile))
+  			}
 
-      cdmSourceFile <- file.path(releaseFolder, "cdmsource.csv")
-      if (file.exists(cdmSourceFile)) {
-        cdmSourceData <- read.csv(cdmSourceFile)
-        releaseIntervalData <- rbind(releaseIntervalData, cdmSourceData)
-      }
-		}
+        cdmSourceFile <- file.path(releaseFolder, "cdmsource.csv")
+        if (file.exists(cdmSourceFile)) {
+          cdmSourceData <- read.csv(cdmSourceFile)
+          releaseIntervalData <- rbind(releaseIntervalData, cdmSourceData)
+        }
 
-		averageUpdateIntervalDays <- "n/a"
-		if (nrow(releaseIntervalData) > 1 ) {
-  		processedIndex <- releaseIntervalData %>%
-  		  mutate(DAYS_ELAPSED = as.Date(CDM_RELEASE_DATE) - lag(as.Date(CDM_RELEASE_DATE))) %>%
-  		  filter(!is.na(DAYS_ELAPSED))
+    		averageUpdateIntervalDays <- "n/a"
+    		if (nrow(releaseIntervalData) > 1 ) {
+      		processedIndex <- releaseIntervalData %>%
+      		  mutate(DAYS_ELAPSED = as.Date(CDM_RELEASE_DATE) - lag(as.Date(CDM_RELEASE_DATE))) %>%
+      		  filter(!is.na(DAYS_ELAPSED))
 
-  		averageUpdateIntervalDays <- round(as.numeric(abs(mean(processedIndex$DAYS_ELAPSED)), units="days"))
-		}
+      		averageUpdateIntervalDays <- round(as.numeric(abs(mean(processedIndex$DAYS_ELAPSED)), units="days"))
+    		}
 
-		source$releases <- source$releases[order(-dqd_execution_date)]
-		source$count_releases <- nrow(source$releases)
-		source$average_update_interval_days <- averageUpdateIntervalDays
-		index$sources[[sourceCount]] <- source
-	}
+    		source$releases <- source$releases[order(-dqd_execution_date)]
+    		source$count_releases <- nrow(source$releases)
+    		source$average_update_interval_days <- averageUpdateIntervalDays
+    		index$sources[[sourceCount]] <- source
+		  }
+  }
 
 	indexJson <- jsonlite::toJSON(index,auto_unbox = T)
 	write(indexJson, file.path(outputFolder,"index.json"))
@@ -149,4 +165,6 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 	}
 	data.table::fwrite(networkPerformanceIndex, file=paste0(outputFolder, "/network-performance.csv"))
   invisible(indexJson)
+	  }
+	}
 }
