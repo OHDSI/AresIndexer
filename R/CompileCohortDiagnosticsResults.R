@@ -5,7 +5,7 @@
 #' @details Compile CohortsDiagnostics results into files compatible with Ares
 #' @param sourceFolders  A vector of folder locations that contain the files
 #' exported from Achilles in the ARES Option format
-
+library('dplyr')
 
 compileCohortDiagnosticsResult <- function(sourceFolders) {
 
@@ -25,17 +25,25 @@ compileCohortDiagnosticsResult <- function(sourceFolders) {
 
     cohortsData <- read.csv(cohortsFile)
     cohortsCount <- read.csv(cohortCountsFile)
+
     temporalCovariateValueData <- read.csv(temporalCovariateValueFile)
+
     temporalCovariateRefData <- read.csv(temporalCovariateRefFile)
+
     temporalAnalysisRefData <- read.csv(temporalAnalysisRefFile)
+
     temporalTimeRefData <- read.csv(temporalTimeRefFile)
+
     temporalCovariateValueDistData <- read.csv(temporalCovariateValueDistFile)
+
     indexEventBreakdownData <- read.csv(indexEventBreakdownFile)
-    conceptData <- read.csv(conceptFile)
+
+    conceptData <- read.csv(conceptFile, row.names = NULL)
 
     # Merge data with reference files
     cohortsTable <- cohortsData %>%
       left_join(cohortsCount, by = "cohort_id")
+
 
     cohortsCharacterizationTable <- temporalCovariateValueData %>%
       left_join(temporalCovariateRefData, by = "covariate_id") %>%
@@ -50,7 +58,6 @@ compileCohortDiagnosticsResult <- function(sourceFolders) {
 
     temporalCovariateValueDistTable <- temporalCovariateValueDistData %>%
       left_join(cohortsData %>% select(cohort_name, cohort_id), by = "cohort_id") %>%
-      left_join(temporalTimeRefData, by = "time_id") %>%
       left_join(temporalCovariateRefData %>% select(covariate_name, covariate_id), by = "covariate_id")
 
 
