@@ -29,7 +29,8 @@ Imports:
   SqlRender,
   DBI,
   duckdb,
-  arrow
+  arrow,
+  rlang
 Suggests:
     knitr,
     rmarkdown

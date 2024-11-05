@@ -3,6 +3,9 @@
 \name{buildNetworkPerformanceIndex}
 \alias{buildNetworkPerformanceIndex}
 \title{Build Network Performance Index}
+\usage{
+buildNetworkPerformanceIndex(sourceFolder)
+}
 \arguments{
 \item{sourceFolder}{Path to source folder}
 }

@@ -32,6 +32,7 @@
 #' @import stringr
 #' @importFrom data.table fwrite
 #' @importFrom utils read.csv
+#' @importFrom rlang .data
 #'
 #' @export
 buildNetworkUnmappedSourceCodeIndex <-
@@ -82,17 +83,17 @@ buildNetworkUnmappedSourceCodeIndex <-
 
     networkResults <-
       networkIndex %>%
-      group_by(CDM_TABLE_NAME, CDM_FIELD_NAME, SOURCE_VALUE) %>%
+      group_by(.data$CDM_TABLE_NAME, .data$CDM_FIELD_NAME, .data$SOURCE_VALUE) %>%
       summarise(
-        RECORD_COUNT = sum(RECORD_COUNT),
-        DATA_SOURCE_COUNT = n_distinct(DATA_SOURCE),
-        DATA_SOURCES = paste(DATA_SOURCE, collapse=",")
+        RECORD_COUNT = sum(.data$RECORD_COUNT),
+        DATA_SOURCE_COUNT = n_distinct(.data$DATA_SOURCE),
+        DATA_SOURCES = paste(.data$DATA_SOURCE, collapse=",")
       ) %>%
       as.data.frame()
 
     topResults <- networkResults %>%
-      filter(DATA_SOURCE_COUNT > 1) %>%
-      slice_max(order_by=RECORD_COUNT,n=100000, with_ties=F)
+      filter(.data$DATA_SOURCE_COUNT > 1) %>%
+      slice_max(order_by=.data$RECORD_COUNT,n=100000, with_ties=F)
 
     data.table::fwrite(topResults,
                        file.path(outputFolder, "network-unmapped-source-codes.csv"))

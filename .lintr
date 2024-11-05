@@ -1,3 +1,5 @@
 linters: linters_with_defaults(
-    object_name_linter = object_name_linter(styles = c("camelCase", "snake_case", "symbols"))) # see vignette("lintr")
+    object_name_linter = object_name_linter(styles = c("camelCase", "snake_case", "symbols")),
+    line_length_linter = NULL,
+    object_length_linter = NULL)
 encoding: "UTF-8"

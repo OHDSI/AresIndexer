@@ -31,6 +31,7 @@
 #'
 #'
 #' @importFrom data.table data.table
+#' @importFrom rlang .data
 #'
 #' @export
 buildNetworkIndex <- function(sourceFolders, outputFolder) {
@@ -145,13 +146,13 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
     		averageUpdateIntervalDays <- "n/a"
     		if (nrow(releaseIntervalData) > 1 ) {
       		processedIndex <- releaseIntervalData %>%
-      		  mutate(DAYS_ELAPSED = as.Date(CDM_RELEASE_DATE) - lag(as.Date(CDM_RELEASE_DATE))) %>%
-      		  filter(!is.na(DAYS_ELAPSED))
+      		  mutate(DAYS_ELAPSED = as.Date(.data$CDM_RELEASE_DATE) - lag(as.Date(.data$CDM_RELEASE_DATE))) %>%
+      		  filter(!is.na(.data$DAYS_ELAPSED))
 
       		averageUpdateIntervalDays <- round(as.numeric(abs(mean(processedIndex$DAYS_ELAPSED)), units="days"))
     		}
 
-    		source$releases <- source$releases[order(-dqd_execution_date)]
+    		source$releases <- source$releases[order(-source$releases$dqd_execution_date)]
     		source$count_releases <- nrow(source$releases)
     		source$average_update_interval_days <- averageUpdateIntervalDays
     		index$sources[[sourceCount]] <- source

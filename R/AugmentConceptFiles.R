@@ -26,9 +26,9 @@
 #' @param releaseFolder Folder containing a specific release of a data source
 #' @param format Storage format of concept data: 'json' or 'duckdb'
 #'
+#' @importFrom rlang .data
 #' @import jsonlite
 #' @import dplyr
-#' @importFrom data.table fwrite
 #'
 
 #' @export
@@ -65,7 +65,7 @@ augmentConceptFiles <- function(
     # augment achilles concept files with data quality failure count for relevant concept checks
     conceptAggregates <- results %>%
       filter(!is.na(results$conceptId) & results$failed == 1) %>%
-      count(conceptId, tolower(cdmTableName))
+      count(.data$conceptId, tolower(.data$cdmTableName))
     names(conceptAggregates) <- c("concept_id", "cdm_table_name", "count_failed")
     writeLines(paste0(nrow(conceptAggregates), " concept level data quality issues found."))
     if (format == "duckdb") {
@@ -80,7 +80,7 @@ augmentConceptFiles <- function(
         dplyr::left_join(
           conceptAggregates[, c("CONCEPT_ID", "COUNT_FAILED")] %>%
           dplyr::mutate(
-            CONCEPT_ID = as.integer(trimws(CONCEPT_ID))
+            CONCEPT_ID = as.integer(trimws(.data$CONCEPT_ID))
           ),
           by = "CONCEPT_ID"
         )

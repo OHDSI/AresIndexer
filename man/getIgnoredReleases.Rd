@@ -7,7 +7,7 @@
 getIgnoredReleases(sourceFolder)
 }
 \arguments{
-\item{aresDataRoot}{The location of the source folder.}
+\item{sourceFolder}{The location of the source folder.}
 }
 \value{
 A list object of ignored data releases.

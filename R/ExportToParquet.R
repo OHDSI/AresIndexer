@@ -32,7 +32,6 @@
 #' @import DBI
 #' @import duckdb
 #' @import dplyr
-#' @importFrom data.table data.table
 #'
 #' @export
 exportToParquet <- function(sourceFolders) {
@@ -53,7 +52,6 @@ exportToParquet <- function(sourceFolders) {
 #' @import DBI
 #' @import duckdb
 #' @import dplyr
-#' @importFrom data.table data.table
 #'
 #' @export
 exportReleaseToParquet <- function(releaseFolder) {

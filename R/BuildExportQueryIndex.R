@@ -26,11 +26,8 @@
 #' @param outputFolder Path to source folder
 #'
 #' @import jsonlite
-#' @import dplyr
-#' @import stringr
 #'
 #' @export
-library(data.table)
 buildExportQueryIndex <-
   function(outputFolder) {
    procedure_occurrence <- list(

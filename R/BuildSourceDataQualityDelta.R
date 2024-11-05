@@ -25,6 +25,7 @@
 #' exported from Achilles in the ARES Option format (Achilles::exportAO)
 #' to be included in the network data quality index.
 #' @import jsonlite
+#' @importFrom utils write.csv
 
 #' @export
 
@@ -72,6 +73,6 @@ buildSourceDataQualityDelta <- function(sourceFolders) {
       colnames(countsDf) <- c("release", names(statusCountsTemplate))
       sourceCounts <- rbind(sourceCounts, countsDf)
     }
-    write.csv(sourceCounts, file = file.path(sourceFolder, 'data-quality-delta.csv'), row.names = FALSE)
+    utils::write.csv(sourceCounts, file = file.path(sourceFolder, 'data-quality-delta.csv'), row.names = FALSE)
   }
 }

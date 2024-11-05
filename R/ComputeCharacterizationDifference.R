@@ -22,14 +22,14 @@
 #' @name ComputeCharacterizationDifference
 #'
 #' @details Computes characterization difference reports for successive data sources releases of a data source.
-#' @param sourceFolder Path to source folder
+#' @param sourceFolders Vector of paths to source folders
 #'
 #' @return Table of difference results.
 #'
 #' @import jsonlite
 #' @import dplyr
 #' @import stringr
-#' @import data.table
+#' @importFrom rlang .data
 #'
 #' @export
 computeCharacterizationDifference <-
@@ -107,13 +107,13 @@ computeCharacterizationDifference <-
               mutate_if(is.numeric, coalesce, 0)
 
             mutatedFullData <- fullData %>% mutate(
-              DIFF_NUM_PERSONS = NUM_PERSONS.y - NUM_PERSONS.x,
+              DIFF_NUM_PERSONS = .data$NUM_PERSONS.y - .data$NUM_PERSONS.x,
               DIFF_PERCENT_PERSONS = format(
-                round(PERCENT_PERSONS.y - PERCENT_PERSONS.x, 4),
+                round(.data$PERCENT_PERSONS.y - .data$PERCENT_PERSONS.x, 4),
                 nsmall = 4
               ),
               DIFF_RECORDS_PER_PERSON = format(
-                round(RECORDS_PER_PERSON.y - RECORDS_PER_PERSON.x,
+                round(.data$RECORDS_PER_PERSON.y - .data$RECORDS_PER_PERSON.x,
                       1),
                 nsmall = 1
               )

@@ -31,6 +31,7 @@
 #' @import jsonlite
 #' @import dplyr
 #' @importFrom data.table fwrite
+#' @importFrom rlang .data
 #'
 #' @export
 buildDataQualityIndex <- function(sourceFolders, outputFolder) {
@@ -70,7 +71,7 @@ buildDataQualityIndex <- function(sourceFolders, outputFolder) {
             results <- dataQualityResults$CheckResults
 
             # for each release, generate a summary of failures by cdm_table_name
-            domainAggregates <- results %>% filter(failed==1) %>% count(tolower(cdmTableName))
+            domainAggregates <- results %>% filter(.data$failed==1) %>% count(tolower(.data$cdmTableName))
             names(domainAggregates) <- c("cdm_table_name", "count_failed")
             data.table::fwrite(domainAggregates, file.path(releaseFolder,"domain-issues.csv"))
 

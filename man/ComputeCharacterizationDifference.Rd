@@ -8,7 +8,7 @@
 computeCharacterizationDifference(sourceFolders)
 }
 \arguments{
-\item{sourceFolder}{Path to source folder}
+\item{sourceFolders}{Vector of paths to source folders}
 }
 \value{
 Table of difference results.

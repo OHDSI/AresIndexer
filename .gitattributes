@@ -1,2 +1,4 @@
 # Keep LF end-of-line on checkout
 *.Rd text eol=lf
+.Rbuildignore text eol=lf
+DESCRIPTION text eol=lf

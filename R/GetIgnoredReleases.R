@@ -21,7 +21,7 @@
 #'
 #' @details Generates a list of data releases that will be ignored when building for a given source
 #'
-#' @param aresDataRoot The location of the source folder.
+#' @param sourceFolder The location of the source folder.
 #'
 #' @return A list object of ignored data releases.
 #'

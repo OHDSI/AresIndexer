@@ -1,4 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.lintr$
-docs/\.nojekyll
+^LICENSE\.md$
+^docs$
+^extras$

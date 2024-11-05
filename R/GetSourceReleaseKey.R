@@ -1,6 +1,9 @@
 #' @title getSourceReleaseKey
 #' @description Returns the source release key for this CDM database for use within ARES
 #'
+#' @param connectionDetails Connection details pointing to CDM database
+#' @param cdmDatabaseSchema CDM schema name
+#'
 #' @export
 getSourceReleaseKey <- function(connectionDetails, cdmDatabaseSchema) {
   sql <- "SELECT * from @cdmDatabaseSchema.cdm_source"

@@ -6,6 +6,11 @@
 \usage{
 getSourceReleaseKey(connectionDetails, cdmDatabaseSchema)
 }
+\arguments{
+\item{connectionDetails}{Connection details pointing to CDM database}
+
+\item{cdmDatabaseSchema}{CDM schema name}
+}
 \description{
 Returns the source release key for this CDM database for use within ARES
 }

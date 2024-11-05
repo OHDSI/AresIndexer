@@ -26,20 +26,17 @@
 #' exported from Achilles in the ARES Option format (Achilles::exportAO)
 #' to be included in the network data quality index.
 #'
-#'
-#'
+#' @import jsonlite
+#' @import dplyr
+#' @importFrom rlang .data
 #'
 #' @export
-#'
-library(jsonlite)
-library(dplyr)
-
-loadDataQualityFile <- function(dir) {
-  filePath <- file.path(dir, "dq-result.json")
-  fromJSON(filePath)
-}
-
 augmentDataQualityFiles <- function(sourceFolders) {
+  loadDataQualityFile <- function(dir) {
+    filePath <- file.path(dir, "dq-result.json")
+    fromJSON(filePath)
+  }
+
   for(sourceFolder in sourceFolders) {
     writeLines(paste0('Augmenting data quality files for: ', basename(sourceFolder)))
     releases <- list.dirs(sourceFolder, recursive = FALSE)
@@ -66,11 +63,11 @@ augmentDataQualityFiles <- function(sourceFolders) {
 
         mergedData <- mergedData %>%
           mutate(delta = case_when(
-            is.na(failed_previous) & failed == 1 ~ "NEW",
-            failed == 1 & failed_previous == 0 ~ "NEW",
-            failed == 1 & failed_previous == 1 ~ "EXISTING",
-            failed == 0 & failed_previous == 1 ~ "RESOLVED",
-            failed == 0 & failed_previous == 0 ~ "STABLE",
+            is.na(.data$failed_previous) & .data$failed == 1 ~ "NEW",
+            .data$failed == 1 & .data$failed_previous == 0 ~ "NEW",
+            .data$failed == 1 & .data$failed_previous == 1 ~ "EXISTING",
+            .data$failed == 0 & .data$failed_previous == 1 ~ "RESOLVED",
+            .data$failed == 0 & .data$failed_previous == 0 ~ "STABLE",
             TRUE ~ "STABLE" # Default case if none of the above match
           )) %>%
           select(-ends_with("_previous"))
@@ -78,7 +75,7 @@ augmentDataQualityFiles <- function(sourceFolders) {
         currentQualityFile$CheckResults <- mergedData
       } else {
         currentChecks <- currentChecks %>%
-          mutate(delta = ifelse(failed == 1, "NEW", "STABLE"))
+          mutate(delta = ifelse(.data$failed == 1, "NEW", "STABLE"))
 
         currentQualityFile$CheckResults <- currentChecks
       }

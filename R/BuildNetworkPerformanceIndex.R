@@ -30,9 +30,9 @@
 #' @import jsonlite
 #' @import dplyr
 #' @import stringr
+#' @importFrom rlang .data
 #'
 #' @export
-library(data.table)
 buildNetworkPerformanceIndex <-
   function(sourceFolder) {
 
@@ -43,7 +43,7 @@ buildNetworkPerformanceIndex <-
       ## different versions of Achilles may use upper or lower case column names
       dplyr::rename_with(toupper) %>%
       dplyr::select(c("ANALYSIS_ID", "CATEGORY")) %>%
-      dplyr::rename(TASK = ANALYSIS_ID)
+      dplyr::rename(dplyr::all_of(c(TASK = "ANALYSIS_ID")))
       releaseFolders <- list.dirs(sourceFolder, recursive = F)
       latestRelease <- max(releaseFolders)
 
@@ -66,12 +66,12 @@ buildNetworkPerformanceIndex <-
               performanceData <- read.csv(achillesPerformanceFile)
 
               performanceTable <- dplyr::select(performanceData, c("analysis_id", "elapsed_seconds")) %>%
-                rename(TASK = analysis_id, TIMING = elapsed_seconds) %>% mutate(PACKAGE = "ACHILLES")
+                rename(dplyr::all_of(c(TASK = "analysis_id", TIMING = "elapsed_seconds"))) %>% mutate(PACKAGE = "ACHILLES")
 
               performanceTable <- merge(x=performanceTable,y=analysisDetails,by="TASK",all.x=TRUE)
 
               dqdTable <- dplyr::select(dqdData, c("CheckResults.checkId", "CheckResults.executionTime", "CheckResults.category")) %>%
-                rename(TASK = CheckResults.checkId, TIMING = CheckResults.executionTime, CATEGORY = CheckResults.category) %>% mutate(PACKAGE = "DQD") %>%
+                rename(dplyr::all_of(c(TASK = "CheckResults.checkId", TIMING = "CheckResults.executionTime", CATEGORY = "CheckResults.category"))) %>% mutate(PACKAGE = "DQD") %>%
                 mutate_at("TIMING", str_replace, " secs", "")
 
               names(performanceTable) <- toupper(names(performanceTable))

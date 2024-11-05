@@ -3,6 +3,9 @@
 \name{buildExportQueryIndex}
 \alias{buildExportQueryIndex}
 \title{Export Query Details}
+\usage{
+buildExportQueryIndex(outputFolder)
+}
 \arguments{
 \item{outputFolder}{Path to source folder}
 }

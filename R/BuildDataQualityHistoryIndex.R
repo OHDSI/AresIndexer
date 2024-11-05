@@ -24,6 +24,7 @@
 #' @import jsonlite
 #' @import dplyr
 #' @importFrom data.table data.table
+#' @importFrom rlang .data
 #'
 #' @export
 buildDataQualityHistoryIndex <-
@@ -42,8 +43,8 @@ buildDataQualityHistoryIndex <-
       dqd_execution_date <- format(lubridate::ymd_hms(json$endTimestamp),"%Y-%m-%d")
 
       stratifiedAggregates <- json$CheckResults %>%
-        filter(failed==1) %>%
-        group_by(category, toupper(cdmTableName)) %>%
+        filter(.data$failed==1) %>%
+        group_by(.data$category, toupper(.data$cdmTableName)) %>%
         summarise(count_value=n())
       names(stratifiedAggregates) <- c("category", "cdm_table_name", "count_value")
       stratifiedAggregates$dqd_execution_date <- dqd_execution_date
