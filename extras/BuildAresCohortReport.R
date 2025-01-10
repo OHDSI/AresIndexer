@@ -5,6 +5,7 @@ library(DatabaseConnector)
 library(dplyr)
 library(tools)
 library(arrow)
+library(stringr)
 
 ## Generates cohorts for given definitions and uses them to populate data
 ## required for cohort report
@@ -351,10 +352,15 @@ buildAresCohortReport <- function(
       by = "time_id"
     ) |>
     dplyr::mutate(
-      temporal_choice = paste(
-        "T", "(", .data$start_day, "to", .data$end_day, ")",
-        sep = " "
-      )
+      temporal_choice =
+        dplyr::if_else(
+          is.na(.data$start_day) & is.na(.data$end_day),
+          NA,
+          paste(
+            "T", "(", .data$start_day, "to", .data$end_day, ")",
+            sep = " "
+          )
+        )
     )
 
   domains <- c(
@@ -371,38 +377,36 @@ buildAresCohortReport <- function(
   )
 
   fixFeatureExtractionOutput <- function(data, domains) {
-    domains_list <- paste0("'", paste(domains, collapse = "','"), "'")
-
-    domain_check_condition <- paste0( # nolint: object_usage_linter.
-      "CHARINDEX(':', covariate_name) > 0 AND ",
-      "SUBSTRING(covariate_name, 1, CHARINDEX(':', covariate_name) - 1) IN ",
-      "(", domains_list, ")"
-    )
-
+    ## ^(condition_occurrence|condition_era|...)\: (.+)$
+    domain_pattern <- paste0("^(", paste(domains, collapse = "|"), ")\\: (.+)$")
     data |>
-      dplyr::mutate(
-        domain_id = dplyr::case_when(
-          dplyr::sql(domain_check_condition) ~
-            dplyr::sql(
-              "SUBSTRING(covariate_name, 1, CHARINDEX(':', covariate_name) - 1)"
-            ),
-          TRUE ~ domain_id
-        ),
-        covariate_name = dplyr::case_when(
-          dplyr::sql(domain_check_condition) ~
-            dplyr::sql(
-              "TRIM(SUBSTRING(covariate_name, CHARINDEX(':', covariate_name) + 1, LENGTH(covariate_name) - CHARINDEX(':', covariate_name)))"),
-          TRUE ~ covariate_name
-        )
-      ) |>
       dplyr::collect() |>
       dplyr::mutate(
+        domain_id_from_covariate_name =
+          stringr::str_extract(.data$covariate_name, domain_pattern, group = 1),
+        domain_covariate_from_covariate_name =
+          stringr::str_extract(.data$covariate_name, domain_pattern, group = 2),
+        domain_id =
+          dplyr::if_else(
+            is.na(.data$domain_id_from_covariate_name),
+            .data$domain_id,
+            .data$domain_id_from_covariate_name
+          ),
+        covariate_name =
+          dplyr::if_else(
+            is.na(.data$domain_covariate_from_covariate_name),
+            .data$covariate_name,
+            .data$domain_covariate_from_covariate_name
+          ),
         domain_id = dplyr::case_when(
           !is.na(domain_id) & domain_id != "" ~
             gsub("_", " ", domain_id) |>
             tools::toTitleCase(),
           TRUE ~ domain_id
         )
+      ) |>
+      dplyr::select(
+        -dplyr::all_of(c("domain_id_from_covariate_name", "domain_covariate_from_covariate_name"))
       )
   }
 
