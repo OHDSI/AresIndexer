@@ -303,16 +303,20 @@ buildAresCohortReport <- function(
 
   ## index_event_breakdown.csv may contain UTF Byte Order Mark (BOM), which
   ## prepends first column name in the CSV making it "∩..concept_id" instead of
-  ## "concept_id"
+  ## "concept_id" or causing failure
+  saveEncoding <- getOption("encoding")
   indexEventBreakdownData <-
-    read.csv(file.path(releaseFolder, "temp", "index_event_breakdown.csv"))
-  if (names(indexEventBreakdownData)[1] != "concept_id") {
-    saveEncoding <- getOption("encoding")
-    options("encoding" = "UTF-8-BOM")
-    indexEventBreakdownData <-
-      read.csv(file.path(releaseFolder, "temp", "index_event_breakdown.csv"))
-    options("encoding" = saveEncoding)
-  }
+    tryCatch(
+      expr = {
+        message("Changing encoding to read index_event_breakdown.csv: ", saveEncoding, " -> UTF-8-BOM")
+        options("encoding" = "UTF-8-BOM")
+        read.csv(file.path(releaseFolder, "temp", "index_event_breakdown.csv"))
+      },
+      finally = {
+        options("encoding" = saveEncoding)
+        message("Encoding was restored: ", saveEncoding)
+      }
+    )
 
   cohortsTable <-
     cohortIndex |>
