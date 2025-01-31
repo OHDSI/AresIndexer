@@ -3,6 +3,7 @@ library(FeatureExtraction)
 library(CohortDiagnostics)
 library(DatabaseConnector)
 library(dplyr)
+library(readr)
 library(tools)
 library(arrow)
 library(stringr)
@@ -301,21 +302,10 @@ buildAresCohortReport <- function(
 
   message("Export data to ARES")
 
-  ## index_event_breakdown.csv may contain UTF Byte Order Mark (BOM), which
-  ## prepends first column name in the CSV making it "∩..concept_id" instead of
-  ## "concept_id" or causing failure
-  saveEncoding <- getOption("encoding")
   indexEventBreakdownData <-
-    tryCatch(
-      expr = {
-        message("Changing encoding to read index_event_breakdown.csv: ", saveEncoding, " -> UTF-8-BOM")
-        options("encoding" = "UTF-8-BOM")
-        read.csv(file.path(releaseFolder, "temp", "index_event_breakdown.csv"))
-      },
-      finally = {
-        options("encoding" = saveEncoding)
-        message("Encoding was restored: ", saveEncoding)
-      }
+    readr::read_csv(
+      file = file.path(releaseFolder, "temp", "index_event_breakdown.csv"),
+      show_col_types = FALSE
     )
 
   cohortsTable <-
