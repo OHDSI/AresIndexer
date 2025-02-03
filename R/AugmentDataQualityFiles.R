@@ -80,7 +80,8 @@ augmentDataQualityFiles <- function(sourceFolders) {
         currentQualityFile$CheckResults <- currentChecks
       }
 
-      write_json(currentQualityFile, file.path(releases[i], "dq-result.json"))
+      jsonlite::toJSON(currentQualityFile) |>
+      write(file.path(releases[i], "dq-result.json"))
 
       # Maintain only the last two loaded datasets
       if (length(loadedData) > 2) {
