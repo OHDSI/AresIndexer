@@ -124,6 +124,7 @@ buildAresCohortReport <- function(
     connectionDetails = connectionDetails,
     cdmDatabaseSchema = cdmDatabaseSchema,
     cohortDatabaseSchema = cohortDatabaseSchema,
+    tempEmulationSchema = tempEmulationSchema,
     cohortTable = cohortTableNames$cohortTable,
     covariateSettings = customCovariateSettings,
     aggregated = TRUE,
