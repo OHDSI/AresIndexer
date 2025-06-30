@@ -301,6 +301,15 @@ buildAresCohortReport <- function(
     recordKeepingFile = file.path(releaseFolder, "CreatedDiagnostics.csv")
   )
 
+  "TRUNCATE TABLE @table;\nDROP TABLE @table;" |>
+  DatabaseConnector::renderTranslateExecuteSql(
+    connection = connection,
+    tempEmulationSchema = tempEmulationSchema,
+    table = "#concept_ids",
+    progressBar = FALSE,
+    reportOverallTime = FALSE
+  )
+
   message("Export data to ARES")
 
   indexEventBreakdownData <-
