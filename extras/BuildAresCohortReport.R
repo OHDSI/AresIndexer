@@ -315,7 +315,15 @@ buildAresCohortReport <- function(
   indexEventBreakdownData <-
     readr::read_csv(
       file = file.path(releaseFolder, "temp", "index_event_breakdown.csv"),
-      show_col_types = FALSE
+      col_types = readr::cols(
+        concept_id = readr::col_integer(),
+        concept_count = readr::col_integer(),
+        subject_count = readr::col_integer(),
+        cohort_id = readr::col_integer(),
+        database_id = readr::col_character(),
+        domain_field = readr::col_character(),
+        domain_table = readr::col_character()
+      )
     )
 
   cohortsTable <-
