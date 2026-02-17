@@ -58,6 +58,10 @@ augmentDataQualityFiles <- function(sourceFolders) {
       currentChecks <- currentQualityFile$CheckResults
       currentChecks$checkId <- as.character(currentChecks$checkId)
 
+      if (anyDuplicated(currentChecks$checkId)) {
+        stop(paste0("Duplicate checkIds found in release: ", currentReleaseName))
+      }
+
       if ("delta" %in% names(currentChecks)) {
         currentChecks$delta <- NULL
       }
