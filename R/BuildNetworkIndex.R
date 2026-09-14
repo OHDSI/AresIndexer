@@ -139,7 +139,9 @@ buildNetworkIndex <- function(sourceFolders, outputFolder) {
 
         cdmSourceFile <- file.path(releaseFolder, "cdmsource.csv")
         if (file.exists(cdmSourceFile)) {
-          cdmSourceData <- read.csv(cdmSourceFile)
+          cdmSourceData <-
+            read.csv(cdmSourceFile) |>
+            dplyr::select(.data$CDM_RELEASE_DATE)
           releaseIntervalData <- rbind(releaseIntervalData, cdmSourceData)
         }
 
